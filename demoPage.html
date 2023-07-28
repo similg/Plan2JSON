@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #test-button {
+        border: solid 1px black;
+        background-color: lime;
+        color: blue;
+        width: 75px;
+        text-align: center;
+        cursor: pointer;
+      }
+      #test-button:hover {
+        background: yellow;
+        color: red;
+      }
+      #test-input {
+        width: 400px;
+      }
+      .float {
+        margin: 5px;
+        float: left;
+      }
+    </style>
+  </head>
+  <body>
+
+  <select name="lang" id="lang" class="float">
+      <option value="fr">Français</option>
+      <option value="en">Anglais</option>
+      <option value="de">Allemand</option>
+      <option value="es">Espagnole</option>
+      <option value="it">Italien</option>
+  </select>
+
+  <input id="test-input" class="float" value="18/06/2023" />
+  <div id="test-button" class="float">Interpreter</div></br></br>
+  <div id="test-result"></div>
+  
+  <script
+  src="https://code.jquery.com/jquery-3.7.0.min.js"
+  integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g="
+  crossorigin="anonymous"
+  ></script>
+
+  <script>
+    const APP = {},
+          dateFormat = "DD/MM/YYYY",
+          dateFormatOutput = "YYYY/MM/DD",
+          importLang = (langFile) => import(langFile);
+    let lang;
+
+    function utilisation(sch,phrase,modele) {
+      //Do Something
+      $('#test-result').append(lang + " : " + phrase + " (modele " + modele["type"] + ") : " + JSON.stringify(sch)+"</br></br>");
+      console.log(phrase,sch)
+    }
+    
+    $("#test-input").keypress(function (e) {
+      var key = e.which;
+      if (key == 13) $("#test-button").trigger("click");
+    });
+    
+    $("#test-button").click(async function (e) {
+      let phrase = $("#test-input").val();
+      if (!APP.Plan2JSON) {
+        await import("/js/Plan2JSON.js").then(module => {
+          APP.Plan2JSON = new module.Plan2JSON({dateFormat: dateFormat, dateFormatOutput: dateFormatOutput});
+        });
+      }
+        
+      if(lang != document.getElementById("lang").value) {
+        lang = document.getElementById("lang").value;
+        await importLang("/js/i18n/" + lang + ".js").then(module => {
+          APP.Plan2JSON.setLang(module.vocabulary);
+        });
+      }
+        
+        
+      let result = APP.Plan2JSON.toInterprete(phrase,"dev");
+      utilisation(result[0],phrase,result[1]);
+      
+    });
+    </script>
+    </body>
+</html>

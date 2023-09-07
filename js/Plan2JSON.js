@@ -289,7 +289,7 @@ class Plan2JSON {
   containsEnums(formattedPhrase) {
     let tableOfIndex = [],
       integerInsideOfString,
-      regContainNumber = new RegExp(/\d+/),
+      regContainNumber = new RegExp(/\d+/g),
       formattedPhraseJoined = formattedPhrase.join(" ");
 
     for (let property of Object.keys(this.enums)) {
@@ -303,8 +303,8 @@ class Plan2JSON {
     }
 
     if (this.tableOfFlags.hasOwnProperty("monthNames")) {
-      integerInsideOfString = formattedPhraseJoined.match(regContainNumber)?.[0] || 1;
-      this.tableOfFlags.monthNames = { monthsIndexes: this.tableOfFlags.monthNames, monthNum: [parseInt(integerInsideOfString)] };
+      integerInsideOfString = formattedPhraseJoined.match(regContainNumber) || [1];
+      this.tableOfFlags.monthNames = { monthsIndexes: this.tableOfFlags.monthNames, monthNum: integerInsideOfString };
     }
   }
 
@@ -466,9 +466,16 @@ class Plan2JSON {
               amountToElapse = Math.abs((newDate.getDay() - this.tableOfFlags["weekDays"][0] - 7) % 7) || 7;
               newDate.setDate(newDate.getDate() + amountToElapse);
             } else if (flag == "monthNames" && this.tableOfFlags.monthNames.monthsIndexes.length == 1) {
-              newDate.setDate(this.tableOfFlags.monthNames.monthNum);
               amountToElapse = Math.abs((newDate.getMonth() - this.tableOfFlags.monthNames.monthsIndexes[0] - 12) % 12) || 12;
+              newDate.setDate(1);
               newDate.setMonth(newDate.getMonth() + amountToElapse);
+
+              if (this.tableOfFlags.monthNames.monthNum.length <= 2) {
+                this.tableOfFlags.monthNames.monthNum.forEach((monthNum) => {
+                  newDate.setDate(monthNum < 31 ? monthNum : newDate.getDate()!=1 ? newDate.getDate() : 1);
+                  newDate.setFullYear(monthNum > newDate.getFullYear() ? monthNum : newDate.getFullYear());
+                });
+              }
             }
             newDate = new Date(newDate);
           }

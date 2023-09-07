@@ -1,6 +1,6 @@
 const vocabulary = {
   expressions: {
-    repeat: ["every"],
+    repeat: ["every", "each"],
     endMonth: ["end month"],
     afterTomorrow: ["after tomorrow", "aftertomorrow"],
     today: ["today"],
